@@ -10,6 +10,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
+import java.io.File
 
 /**
  * KSP processor that generates factory classes and DSL extension functions
@@ -56,7 +57,22 @@ class VaadinDslProcessor(
             "com.vaadin.flow.component.progressbar",
             "com.vaadin.flow.component.richtexteditor",
             "com.vaadin.flow.component.treegrid",
-            "com.vaadin.flow.component.virtuallist"
+            "com.vaadin.flow.component.virtuallist",
+            // Additional Vaadin component packages
+            "com.vaadin.flow.component.icon",
+            "com.vaadin.flow.component.confirmdialog",
+            "com.vaadin.flow.component.login",
+            "com.vaadin.flow.component.sidenav",
+            "com.vaadin.flow.component.map",
+            "com.vaadin.flow.component.charts",
+            "com.vaadin.flow.component.board",
+            "com.vaadin.flow.component.cookieconsent",
+            "com.vaadin.flow.component.crud",
+            "com.vaadin.flow.component.gridpro",
+            "com.vaadin.flow.component.spreadsheet",
+            "com.vaadin.flow.component.customfield",
+            "com.vaadin.flow.component.inputfield",
+            "com.vaadin.flow.component.shared"
         )
     }
 
@@ -90,14 +106,19 @@ class VaadinDslProcessor(
             return
         }
 
+        // Read source file to extract default values
+        val sourceDefaults = extractDefaultValuesFromSource(classDecl)
+
         // Analyze constructor parameters
         val params = constructor.parameters.map { param ->
+            val paramName = param.name?.asString() ?: "unknown"
             ConstructorParamInfo(
-                name = param.name?.asString() ?: "unknown",
+                name = paramName,
                 type = param.type.resolve(),
                 typeName = param.type.resolve().toTypeName(),
                 isGenDslParam = param.hasAnnotation(GEN_DSL_PARAM_ANNOTATION),
-                hasDefault = param.hasDefault
+                hasDefault = param.hasDefault,
+                defaultValue = if (param.hasDefault) sourceDefaults[paramName] else null
             )
         }
 
@@ -221,14 +242,14 @@ class VaadinDslProcessor(
 
         writer.appendLine()
 
-        // create() method
+        // create() method - now with default values
         if (dslParams.isEmpty()) {
             writer.appendLine("    fun create(): $className {")
         } else {
             writer.appendLine("    fun create(")
             dslParams.forEachIndexed { index, param ->
                 val comma = if (index < dslParams.size - 1) "," else ""
-                writer.appendLine("        ${param.name}: ${param.simpleTypeName}$comma")
+                writer.appendLine("        ${param.paramDeclaration}$comma")
             }
             writer.appendLine("    ): $className {")
         }
@@ -257,7 +278,7 @@ class VaadinDslProcessor(
         } else {
             writer.appendLine("fun HasComponents.$dslFunctionName(")
             dslParams.forEachIndexed { index, param ->
-                writer.appendLine("    ${param.name}: ${param.simpleTypeName},")
+                writer.appendLine("    ${param.paramDeclaration},")
             }
             writer.appendLine("    block: $className.() -> Unit = {}")
             writer.appendLine("): $className {")
@@ -321,6 +342,111 @@ class VaadinDslProcessor(
         }
     }
 
+    /**
+     * Extracts default values from source file by parsing the constructor parameters.
+     * Returns a map of parameter name to default value expression.
+     */
+    private fun extractDefaultValuesFromSource(classDecl: KSClassDeclaration): Map<String, String> {
+        val filePath = classDecl.containingFile?.filePath ?: return emptyMap()
+        val sourceFile = File(filePath)
+        if (!sourceFile.exists()) return emptyMap()
+
+        val sourceText = try {
+            sourceFile.readText()
+        } catch (e: Exception) {
+            logger.warn("Could not read source file: $filePath")
+            return emptyMap()
+        }
+
+        val className = classDecl.simpleName.asString()
+        val defaults = mutableMapOf<String, String>()
+
+        // Find the class declaration and its constructor parameters
+        // Pattern: class ClassName( or class ClassName constructor(
+        val classPattern = Regex("""class\s+$className\s*(?:constructor)?\s*\(([^)]*(?:\([^)]*\)[^)]*)*)\)""", RegexOption.DOT_MATCHES_ALL)
+        val classMatch = classPattern.find(sourceText) ?: return emptyMap()
+
+        val constructorParams = classMatch.groupValues[1]
+
+        // Parse each parameter looking for default values
+        // Handle nested parentheses, generics, and string literals
+        var depth = 0
+        var genericDepth = 0
+        var inString = false
+        var stringChar = ' '
+        var currentParam = StringBuilder()
+        val paramStrings = mutableListOf<String>()
+
+        for (char in constructorParams) {
+            when {
+                !inString && (char == '"' || char == '\'') -> {
+                    inString = true
+                    stringChar = char
+                    currentParam.append(char)
+                }
+                inString && char == stringChar -> {
+                    inString = false
+                    currentParam.append(char)
+                }
+                inString -> currentParam.append(char)
+                char == '(' -> {
+                    depth++
+                    currentParam.append(char)
+                }
+                char == ')' -> {
+                    depth--
+                    currentParam.append(char)
+                }
+                char == '<' -> {
+                    genericDepth++
+                    currentParam.append(char)
+                }
+                char == '>' -> {
+                    genericDepth--
+                    currentParam.append(char)
+                }
+                char == ',' && depth == 0 && genericDepth == 0 -> {
+                    paramStrings.add(currentParam.toString().trim())
+                    currentParam = StringBuilder()
+                }
+                else -> currentParam.append(char)
+            }
+        }
+        if (currentParam.isNotBlank()) {
+            paramStrings.add(currentParam.toString().trim())
+        }
+
+        // Extract default values from each parameter string
+        for (paramStr in paramStrings) {
+            // Pattern: [annotations] [modifiers] name: Type = defaultValue
+            val defaultPattern = Regex("""(?:@\w+(?:\([^)]*\))?\s+)*(?:(?:private|protected|public|internal|val|var|override)\s+)*(\w+)\s*:\s*[^=]+=\s*(.+)$""")
+            val match = defaultPattern.find(paramStr.trim())
+            if (match != null) {
+                val paramName = match.groupValues[1]
+                var defaultValue = match.groupValues[2].trim()
+
+                // Remove trailing line comments (// ...)
+                val commentIndex = defaultValue.indexOf("//")
+                if (commentIndex >= 0) {
+                    defaultValue = defaultValue.substring(0, commentIndex).trim()
+                }
+
+                // Remove trailing block comments (/* ... */)
+                val blockCommentPattern = Regex("""/\*.*?\*/""")
+                defaultValue = defaultValue.replace(blockCommentPattern, "").trim()
+
+                // Remove trailing commas that might have been left
+                defaultValue = defaultValue.trimEnd(',').trim()
+
+                if (defaultValue.isNotEmpty()) {
+                    defaults[paramName] = defaultValue
+                }
+            }
+        }
+
+        return defaults
+    }
+
     private fun KSType.toTypeName(): String {
         val baseName = declaration.qualifiedName?.asString() ?: declaration.simpleName.asString()
         val args = arguments.mapNotNull { arg ->
@@ -344,7 +470,8 @@ class VaadinDslProcessor(
         val type: KSType,
         val typeName: String,
         val isGenDslParam: Boolean,
-        val hasDefault: Boolean
+        val hasDefault: Boolean,
+        val defaultValue: String? = null
     ) {
         val simpleTypeName: String
             get() {
@@ -358,6 +485,13 @@ class VaadinDslProcessor(
                 } else {
                     "$baseName<${args.joinToString(", ")}>$nullable"
                 }
+            }
+
+        val paramDeclaration: String
+            get() = if (hasDefault && defaultValue != null) {
+                "$name: $simpleTypeName = $defaultValue"
+            } else {
+                "$name: $simpleTypeName"
             }
     }
 }

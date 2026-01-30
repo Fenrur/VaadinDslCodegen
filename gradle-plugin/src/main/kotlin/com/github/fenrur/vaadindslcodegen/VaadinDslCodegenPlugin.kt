@@ -35,10 +35,13 @@ class VaadinDslCodegenPlugin : Plugin<Project> {
             VaadinDslCodegenExtension::class.java
         )
 
-        // Set default value
+        // Set default value using convention
         extension.mode.convention(VaadinDslCodegenExtension.Mode.QUARKUS)
 
-        // Configure KSP after project evaluation
+        // Configure KSP arguments after project evaluation
+        // Note: afterEvaluate is required here because KspExtension.arg() doesn't support
+        // lazy Provider values. This ensures the user's configuration is applied before
+        // KSP arguments are finalized.
         project.afterEvaluate {
             project.extensions.findByType(KspExtension::class.java)?.let { ksp ->
                 ksp.arg("vaadindsl.mode", extension.mode.get().name)
