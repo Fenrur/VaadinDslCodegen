@@ -3,3 +3,4 @@ jdk:
 
 install:
   - ./gradlew :library:publishToMavenLocal :processor:publishToMavenLocal
+  - cd gradle-plugin && ../gradlew publishToMavenLocal

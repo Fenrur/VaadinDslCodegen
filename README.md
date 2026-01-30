@@ -14,6 +14,14 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        maven { url = uri("https://jitpack.io") }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "com.github.fenrur.vaadin-dsl-codegen") {
+                useModule("com.github.fenrur.vaadin-dsl-codegen:gradle-plugin:${requested.version}")
+            }
+        }
     }
 }
 
@@ -25,14 +33,20 @@ dependencyResolutionManagement {
 }
 
 // build.gradle.kts
+import com.github.fenrur.vaadindslcodegen.VaadinDslCodegenExtension.Mode
+
 plugins {
     kotlin("jvm") version "2.1.0"
-    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
+    id("com.github.fenrur.vaadin-dsl-codegen") version "1.0.0" // Applies KSP automatically
 }
 
 dependencies {
     implementation("com.github.fenrur.vaadin-dsl-codegen:library:1.0.0")
     ksp("com.github.fenrur.vaadin-dsl-codegen:processor:1.0.0")
+}
+
+vaadinDslCodegen {
+    mode = Mode.QUARKUS // or Mode.SPRING
 }
 ```
 
@@ -40,6 +54,21 @@ dependencies {
 
 ```groovy
 // settings.gradle
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url 'https://jitpack.io' }
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == 'com.github.fenrur.vaadin-dsl-codegen') {
+                useModule("com.github.fenrur.vaadin-dsl-codegen:gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
+
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
@@ -48,26 +77,24 @@ dependencyResolutionManagement {
 }
 
 // build.gradle
+import com.github.fenrur.vaadindslcodegen.VaadinDslCodegenExtension.Mode
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.1.0'
-    id 'com.google.devtools.ksp' version '2.1.0-1.0.29'
+    id 'com.github.fenrur.vaadin-dsl-codegen' version '1.0.0' // Applies KSP automatically
 }
 
 dependencies {
     implementation 'com.github.fenrur.vaadin-dsl-codegen:library:1.0.0'
     ksp 'com.github.fenrur.vaadin-dsl-codegen:processor:1.0.0'
 }
+
+vaadinDslCodegen {
+    mode = Mode.QUARKUS // or Mode.SPRING
+}
 ```
 
 ## Configuration
-
-Configure the processor mode via KSP arguments:
-
-```kotlin
-ksp {
-    arg("vaadindsl.mode", "QUARKUS") // or "SPRING"
-}
-```
 
 ### Modes
 
@@ -75,6 +102,16 @@ ksp {
 |------|-----------|----------------|
 | `QUARKUS` | Arc | `Arc.container().instance(...).get()` |
 | `SPRING` | Spring | `VaadinDslApplicationContextHolder.getBean(...)` |
+
+## Spring Mode Setup
+
+When using Spring mode, make sure `VaadinDslApplicationContextHolder` is available:
+
+```kotlin
+// This class is provided in the library module
+// Just make sure Spring component scanning includes the package
+@ComponentScan("com.github.fenrur.vaadindslcodegen")
+```
 
 ## Usage
 
@@ -195,14 +232,58 @@ The processor uses KSP to:
 
 Generated files are placed in `build/generated/ksp/main/kotlin/`.
 
-## Spring Mode Setup
+## Examples
 
-When using Spring mode, make sure `VaadinDslApplicationContextHolder` is available:
+The repository includes working examples for both Quarkus and Spring:
+
+```
+examples/
+├── quarkus/     # Quarkus + Vaadin example
+└── spring/      # Spring Boot + Vaadin example
+```
+
+### Running the Examples
+
+**Quarkus:**
+```bash
+cd examples/quarkus
+../gradlew quarkusDev
+# Open http://localhost:8082
+```
+
+**Spring:**
+```bash
+cd examples/spring
+../gradlew bootRun
+# Open http://localhost:8081
+```
+
+### Example Components
+
+Both examples include:
+
+- **CustomButton**: A button component with DI-injected Logger and DSL parameters
+- **InfoCard**: A simple card component with only DSL parameters
+- **MainView**: Demonstrates using the generated DSL functions
 
 ```kotlin
-// This class is provided in the library module
-// Just make sure Spring component scanning includes the package
-@ComponentScan("com.github.fenrur.vaadindslcodegen")
+// Example component definition
+@GenDsl
+class CustomButton(
+    private val logger: Logger,           // Injected by DI container
+    @GenDslParam label: String,           // DSL parameter
+    @GenDslParam val primary: Boolean     // DSL parameter
+) : Button(label)
+
+// Usage in a view
+class MainView : VerticalLayout() {
+    init {
+        customButton("Click Me", primary = true) {
+            addClickListener { /* ... */ }
+        }
+        infoCard("Title", "Description")
+    }
+}
 ```
 
 ## License

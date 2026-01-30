@@ -1,9 +1,11 @@
+import com.github.fenrur.vaadindslcodegen.VaadinDslCodegenExtension.Mode
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.allopen") version "2.1.0"
     id("io.quarkus") version "3.17.7"
     id("com.vaadin") version "24.6.3"
-    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
+    id("com.github.fenrur.vaadin-dsl-codegen") // Applies KSP automatically
 }
 
 repositories {
@@ -41,8 +43,8 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured")
 }
 
-ksp {
-    arg("vaadindsl.mode", "QUARKUS")
+vaadinDslCodegen {
+    mode = Mode.QUARKUS
 }
 
 allOpen {
