@@ -26,7 +26,7 @@ gradlePlugin {
     plugins {
         create("vaadinDslCodegen") {
             id = "com.github.fenrur.vaadin-dsl-codegen"
-            implementationClass = "com.github.fenrur.vaadindsl.VaadinDslCodegenPlugin"
+            implementationClass = "com.github.fenrur.vaadindslcodegen.VaadinDslCodegenPlugin"
             displayName = "Vaadin DSL Codegen"
             description = "Generates DSL factory classes and extension functions for Vaadin components"
         }

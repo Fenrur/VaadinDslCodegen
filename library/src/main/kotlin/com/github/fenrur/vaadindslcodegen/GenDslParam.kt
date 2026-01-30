@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindsl
+package com.github.fenrur.vaadindslcodegen
 
 /**
  * Marks a constructor parameter as a DSL function parameter.

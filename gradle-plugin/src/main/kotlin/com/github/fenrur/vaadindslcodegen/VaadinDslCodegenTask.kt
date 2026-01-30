@@ -1,7 +1,7 @@
-package com.github.fenrur.vaadindsl
+package com.github.fenrur.vaadindslcodegen
 
-import com.github.fenrur.vaadindsl.internal.CodeGenerator
-import com.github.fenrur.vaadindsl.internal.SourceAnalyzer
+import com.github.fenrur.vaadindslcodegen.internal.CodeGenerator
+import com.github.fenrur.vaadindslcodegen.internal.SourceAnalyzer
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection

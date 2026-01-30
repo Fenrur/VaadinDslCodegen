@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindsl.model
+package com.github.fenrur.vaadindslcodegen.model
 
 /**
  * Represents a constructor parameter of a class annotated with @GenDsl.

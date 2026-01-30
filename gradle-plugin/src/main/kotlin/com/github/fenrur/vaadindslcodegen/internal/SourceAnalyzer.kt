@@ -1,7 +1,7 @@
-package com.github.fenrur.vaadindsl.internal
+package com.github.fenrur.vaadindslcodegen.internal
 
-import com.github.fenrur.vaadindsl.model.ClassInfo
-import com.github.fenrur.vaadindsl.model.ConstructorParam
+import com.github.fenrur.vaadindslcodegen.model.ClassInfo
+import com.github.fenrur.vaadindslcodegen.model.ConstructorParam
 import java.io.File
 
 /**

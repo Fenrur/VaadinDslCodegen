@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindsl.model
+package com.github.fenrur.vaadindslcodegen.model
 
 /**
  * Holds metadata about a class annotated with @GenDsl.

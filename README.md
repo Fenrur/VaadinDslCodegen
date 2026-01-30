@@ -51,8 +51,8 @@ vaadinDslCodegen {
 Marks a class for DSL factory generation.
 
 ```kotlin
-import com.github.fenrur.vaadindsl.GenDsl
-import com.github.fenrur.vaadindsl.GenDslParam
+import com.github.fenrur.vaadindslcodegen.GenDsl
+import com.github.fenrur.vaadindslcodegen.GenDslParam
 
 @GenDsl
 class CustomButton(

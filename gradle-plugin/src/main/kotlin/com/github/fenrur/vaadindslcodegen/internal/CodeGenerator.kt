@@ -1,7 +1,7 @@
-package com.github.fenrur.vaadindsl.internal
+package com.github.fenrur.vaadindslcodegen.internal
 
-import com.github.fenrur.vaadindsl.ContainerMode
-import com.github.fenrur.vaadindsl.model.ClassInfo
+import com.github.fenrur.vaadindslcodegen.ContainerMode
+import com.github.fenrur.vaadindslcodegen.model.ClassInfo
 import java.io.File
 
 /**
@@ -29,7 +29,7 @@ object CodeGenerator {
         sb.appendLine()
 
         // Imports
-        sb.appendLine("import com.github.fenrur.vaadindsl.VaadinDsl")
+        sb.appendLine("import com.github.fenrur.vaadindslcodegen.VaadinDsl")
 
         when (mode) {
             ContainerMode.QUARKUS -> {
@@ -38,7 +38,7 @@ object CodeGenerator {
                 sb.appendLine("import jakarta.enterprise.context.ApplicationScoped")
             }
             ContainerMode.SPRING -> {
-                sb.appendLine("import com.github.fenrur.vaadindsl.VaadinDslApplicationContextHolder")
+                sb.appendLine("import com.github.fenrur.vaadindslcodegen.VaadinDslApplicationContextHolder")
                 sb.appendLine("import org.springframework.stereotype.Component")
             }
         }

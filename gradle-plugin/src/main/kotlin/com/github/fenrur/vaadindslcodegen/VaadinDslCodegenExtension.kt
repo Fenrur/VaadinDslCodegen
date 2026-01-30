@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindsl
+package com.github.fenrur.vaadindslcodegen
 
 import org.gradle.api.provider.Property
 

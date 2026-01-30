@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindsl
+package com.github.fenrur.vaadindslcodegen
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
