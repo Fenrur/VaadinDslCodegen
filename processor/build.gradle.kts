@@ -14,6 +14,15 @@ java {
 dependencies {
     implementation(project(":library"))
     implementation("com.google.devtools.ksp:symbol-processing-api:2.1.0-1.0.29")
+
+    testImplementation(kotlin("test"))
+    testImplementation("org.assertj:assertj-core:3.27.3")
+    testImplementation("dev.zacsweers.kctfork:core:0.7.0")
+    testImplementation("dev.zacsweers.kctfork:ksp:0.7.0")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 kotlin {
