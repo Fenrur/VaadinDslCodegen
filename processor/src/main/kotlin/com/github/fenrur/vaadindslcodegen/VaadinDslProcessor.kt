@@ -228,8 +228,7 @@ class VaadinDslProcessor(
             writer.appendLine("    fun create(")
             dslParams.forEachIndexed { index, param ->
                 val comma = if (index < dslParams.size - 1) "," else ""
-                val default = if (param.hasDefault) " = TODO(\"default value\")" else ""
-                writer.appendLine("        ${param.name}: ${param.simpleTypeName}$default$comma")
+                writer.appendLine("        ${param.name}: ${param.simpleTypeName}$comma")
             }
             writer.appendLine("    ): $className {")
         }
@@ -258,8 +257,7 @@ class VaadinDslProcessor(
         } else {
             writer.appendLine("fun HasComponents.$dslFunctionName(")
             dslParams.forEachIndexed { index, param ->
-                val default = if (param.hasDefault) " = TODO(\"default value\")" else ""
-                writer.appendLine("    ${param.name}: ${param.simpleTypeName}$default,")
+                writer.appendLine("    ${param.name}: ${param.simpleTypeName},")
             }
             writer.appendLine("    block: $className.() -> Unit = {}")
             writer.appendLine("): $className {")

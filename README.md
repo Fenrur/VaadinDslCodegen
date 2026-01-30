@@ -4,6 +4,8 @@ A KSP (Kotlin Symbol Processing) processor that generates factory classes and DS
 
 ## Installation
 
+[![](https://jitpack.io/v/fenrur/vaadin-dsl-codegen.svg)](https://jitpack.io/#fenrur/vaadin-dsl-codegen)
+
 ### Gradle (Kotlin DSL)
 
 ```kotlin
@@ -12,6 +14,12 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
         maven { url = uri("https://jitpack.io") }
     }
 }
@@ -22,14 +30,32 @@ plugins {
     id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 }
 
-repositories {
-    mavenCentral()
-    maven { url = uri("https://jitpack.io") }
-}
-
 dependencies {
     implementation("com.github.fenrur.vaadin-dsl-codegen:library:1.0.0")
     ksp("com.github.fenrur.vaadin-dsl-codegen:processor:1.0.0")
+}
+```
+
+### Gradle (Groovy DSL)
+
+```groovy
+// settings.gradle
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+// build.gradle
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
+    id 'com.google.devtools.ksp' version '2.1.0-1.0.29'
+}
+
+dependencies {
+    implementation 'com.github.fenrur.vaadin-dsl-codegen:library:1.0.0'
+    ksp 'com.github.fenrur.vaadin-dsl-codegen:processor:1.0.0'
 }
 ```
 

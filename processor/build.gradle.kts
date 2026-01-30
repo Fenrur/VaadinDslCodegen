@@ -26,7 +26,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "vaadin-dsl-codegen-processor"
+            artifactId = "processor"
             version = project.version.toString()
 
             from(components["java"])
