@@ -1,6 +1,6 @@
 # Vaadin DSL Codegen
 
-A Gradle plugin that generates factory classes and DSL extension functions for Vaadin components.
+A KSP (Kotlin Symbol Processing) processor that generates factory classes and DSL extension functions for Vaadin components.
 
 ## Installation
 
@@ -11,27 +11,35 @@ A Gradle plugin that generates factory classes and DSL extension functions for V
 pluginManagement {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
         maven { url = uri("https://jitpack.io") }
     }
 }
 
 // build.gradle.kts
 plugins {
-    id("com.github.fenrur.vaadin-dsl-codegen") version "1.0.0"
+    kotlin("jvm") version "2.1.0"
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
+}
+
+repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
-    implementation("com.github.fenrur:vaadin-dsl-codegen-library:1.0.0")
+    implementation("com.github.fenrur.vaadin-dsl-codegen:library:1.0.0")
+    ksp("com.github.fenrur.vaadin-dsl-codegen:processor:1.0.0")
 }
 ```
 
 ## Configuration
 
+Configure the processor mode via KSP arguments:
+
 ```kotlin
-vaadinDslCodegen {
-    mode.set(ContainerMode.QUARKUS) // Default: QUARKUS
-    // or
-    mode.set(ContainerMode.SPRING)
+ksp {
+    arg("vaadindsl.mode", "QUARKUS") // or "SPRING"
 }
 ```
 
@@ -57,8 +65,8 @@ import com.github.fenrur.vaadindslcodegen.GenDslParam
 @GenDsl
 class CustomButton(
     private val logger: Logger,           // CDI/Spring injected
-    @GenDslParam text: String,            // DSL parameter
-    @GenDslParam enabled: Boolean = true  // DSL parameter with default
+    @GenDslParam val text: String,        // DSL parameter
+    @GenDslParam val enabled: Boolean = true  // DSL parameter with default
 ) : Button(text) {
     init {
         isEnabled = enabled
@@ -72,7 +80,7 @@ Marks a constructor parameter as a DSL function parameter (not injected).
 
 ### Generated Code
 
-For the example above, the plugin generates:
+For the example above, the processor generates:
 
 **Quarkus mode:**
 ```kotlin
@@ -139,15 +147,37 @@ verticalLayout {
 }
 ```
 
-## Gradle Task
+## How It Works
 
-The plugin registers a `generateVaadinDsl` task that runs before `compileKotlin`.
+The processor uses KSP to:
 
-```bash
-./gradlew generateVaadinDsl
+1. Find all classes annotated with `@GenDsl`
+2. Analyze the primary constructor parameters
+3. Detect `@GenDslParam` annotations to separate DSL params from injected dependencies
+4. Check if the class extends a Vaadin `Component` (via type resolution)
+5. Generate factory classes with proper DI annotations
+6. Generate DSL extension functions for `HasComponents`
+
+### Advantages of KSP
+
+- **Type-safe**: Full type resolution for accurate Component detection
+- **Fast**: 2x faster than KAPT
+- **Incremental**: Only reprocesses changed files
+- **Kotlin-native**: Direct access to Kotlin symbols and annotations
+
+## Generated Files Location
+
+Generated files are placed in `build/generated/ksp/main/kotlin/`.
+
+## Spring Mode Setup
+
+When using Spring mode, make sure `VaadinDslApplicationContextHolder` is available:
+
+```kotlin
+// This class is provided in the library module
+// Just make sure Spring component scanning includes the package
+@ComponentScan("com.github.fenrur.vaadindslcodegen")
 ```
-
-Generated files are placed in `build/generated-src/vaadin-dsl/`.
 
 ## License
 

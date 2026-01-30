@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm")
-    `java-gradle-plugin`
     `maven-publish`
 }
 
@@ -13,7 +12,8 @@ java {
 }
 
 dependencies {
-    implementation(gradleApi())
+    implementation(project(":library"))
+    implementation("com.google.devtools.ksp:symbol-processing-api:2.1.0-1.0.29")
 }
 
 kotlin {
@@ -22,29 +22,18 @@ kotlin {
     }
 }
 
-gradlePlugin {
-    plugins {
-        create("vaadinDslCodegen") {
-            id = "com.github.fenrur.vaadin-dsl-codegen"
-            implementationClass = "com.github.fenrur.vaadindslcodegen.VaadinDslCodegenPlugin"
-            displayName = "Vaadin DSL Codegen"
-            description = "Generates DSL factory classes and extension functions for Vaadin components"
-        }
-    }
-}
-
 publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "vaadin-dsl-codegen-gradle-plugin"
+            artifactId = "vaadin-dsl-codegen-processor"
             version = project.version.toString()
 
             from(components["java"])
 
             pom {
-                name.set("Vaadin DSL Codegen Gradle Plugin")
-                description.set("Gradle plugin for generating Vaadin DSL factory classes")
+                name.set("Vaadin DSL Codegen Processor")
+                description.set("KSP processor for generating Vaadin DSL factory classes")
                 url.set("https://github.com/fenrur/vaadin-dsl-codegen")
 
                 licenses {
