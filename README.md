@@ -221,13 +221,6 @@ The processor uses KSP to:
 5. Generate factory classes with proper DI annotations
 6. Generate DSL extension functions for `HasComponents`
 
-### Advantages of KSP
-
-- **Type-safe**: Full type resolution for accurate Component detection
-- **Fast**: 2x faster than KAPT
-- **Incremental**: Only reprocesses changed files
-- **Kotlin-native**: Direct access to Kotlin symbols and annotations
-
 ## Generated Files Location
 
 Generated files are placed in `build/generated/ksp/main/kotlin/`.
