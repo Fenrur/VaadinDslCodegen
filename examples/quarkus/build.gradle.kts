@@ -37,7 +37,7 @@ dependencies {
     ksp(project(":processor"))
 
     // Signal library for @ExposeSignal
-    implementation("com.github.fenrur:signal:v1.0.0")
+    implementation("com.github.fenrur:signal:1.0.0")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.16")
