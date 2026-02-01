@@ -36,7 +36,7 @@ publishing {
             pom {
                 name.set("Vaadin DSL Codegen Library")
                 description.set("Annotations for Vaadin DSL code generation")
-                url.set("https://github.com/fenrur/vaadin-dsl-codegen")
+                url.set("https://github.com/fenrur/vaadin-codegen")
 
                 licenses {
                     license {
@@ -53,9 +53,9 @@ publishing {
                 }
 
                 scm {
-                    url.set("https://github.com/fenrur/vaadin-dsl-codegen")
-                    connection.set("scm:git:git://github.com/fenrur/vaadin-dsl-codegen.git")
-                    developerConnection.set("scm:git:ssh://github.com/fenrur/vaadin-dsl-codegen.git")
+                    url.set("https://github.com/fenrur/vaadin-codegen")
+                    connection.set("scm:git:git://github.com/fenrur/vaadin-codegen.git")
+                    developerConnection.set("scm:git:ssh://github.com/fenrur/vaadin-codegen.git")
                 }
             }
         }

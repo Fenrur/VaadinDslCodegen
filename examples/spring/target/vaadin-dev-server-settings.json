@@ -1,0 +1,17 @@
+{
+  "frontendFolder": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/./src/main/frontend",
+  "themeFolder": "themes",
+  "themeResourceFolder": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/./src/main/frontend/generated/jar-resources",
+  "staticOutput": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/target/classes/META-INF/VAADIN/webapp/VAADIN/static",
+  "generatedFolder": "generated",
+  "statsOutput": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/target/classes/META-INF/VAADIN/config",
+  "frontendBundleOutput": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/target/classes/META-INF/VAADIN/webapp",
+  "devBundleOutput": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/target/dev-bundle/webapp",
+  "devBundleStatsOutput": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/target/dev-bundle/config",
+  "jarResourcesFolder": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/./src/main/frontend/generated/jar-resources",
+  "themeName": "",
+  "clientServiceWorkerSource": "/Users/livio/Projects/vaadin-dsl-codegen/examples/spring/target/sw.ts",
+  "pwaEnabled": false,
+  "offlineEnabled": false,
+  "offlinePath": "'offline.html'"
+}

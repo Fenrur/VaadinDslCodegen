@@ -9,7 +9,7 @@ pluginManagement {
     includeBuild("gradle-plugin")
 }
 
-rootProject.name = "vaadin-dsl-codegen"
+rootProject.name = "vaadin-codegen"
 
 include("library")
 include("processor")

@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindslcodegen
+package com.github.fenrur.vaadin.codegen
 
 import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin

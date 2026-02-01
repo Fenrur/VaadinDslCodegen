@@ -1,4 +1,4 @@
-import com.github.fenrur.vaadindslcodegen.VaadinDslCodegenExtension.Mode
+import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 
 plugins {
     kotlin("jvm")
@@ -6,7 +6,7 @@ plugins {
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.vaadin") version "24.6.3"
-    id("com.github.fenrur.vaadin-dsl-codegen") // Applies KSP automatically
+    id("com.github.fenrur.vaadin-codegen") // Applies KSP automatically
 }
 
 repositories {

@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindslcodegen
+package com.github.fenrur.vaadin.codegen
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -23,8 +23,8 @@ class VaadinDslProcessor(
 ) : SymbolProcessor {
 
     companion object {
-        private const val GEN_DSL_ANNOTATION = "com.github.fenrur.vaadindslcodegen.GenDsl"
-        private const val GEN_DSL_PARAM_ANNOTATION = "com.github.fenrur.vaadindslcodegen.GenDslParam"
+        private const val GEN_DSL_ANNOTATION = "com.github.fenrur.vaadin.codegen.GenDsl"
+        private const val GEN_DSL_PARAM_ANNOTATION = "com.github.fenrur.vaadin.codegen.GenDslParam"
 
         private val VAADIN_COMPONENT_PACKAGES = setOf(
             "com.vaadin.flow.component",
@@ -154,7 +154,7 @@ class VaadinDslProcessor(
 
         // Collect all imports needed
         val imports = mutableSetOf<String>()
-        imports.add("com.github.fenrur.vaadindslcodegen.VaadinDsl")
+        imports.add("com.github.fenrur.vaadin.codegen.VaadinDsl")
 
         when (mode) {
             ContainerMode.QUARKUS -> {
@@ -163,7 +163,7 @@ class VaadinDslProcessor(
                 imports.add("jakarta.enterprise.context.ApplicationScoped")
             }
             ContainerMode.SPRING -> {
-                imports.add("com.github.fenrur.vaadindslcodegen.VaadinDslApplicationContextHolder")
+                imports.add("com.github.fenrur.vaadin.codegen.VaadinDslApplicationContextHolder")
                 imports.add("org.springframework.stereotype.Component")
             }
         }

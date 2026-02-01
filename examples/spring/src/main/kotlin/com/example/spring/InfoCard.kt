@@ -1,7 +1,7 @@
 package com.example.spring
 
-import com.github.fenrur.vaadindslcodegen.GenDsl
-import com.github.fenrur.vaadindslcodegen.GenDslParam
+import com.github.fenrur.vaadin.codegen.GenDsl
+import com.github.fenrur.vaadin.codegen.GenDslParam
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.H3
 import com.vaadin.flow.component.html.Paragraph

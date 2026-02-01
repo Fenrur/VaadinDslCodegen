@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindslcodegen
+package com.github.fenrur.vaadin.codegen
 
 /**
  * Marks a class for DSL factory code generation.

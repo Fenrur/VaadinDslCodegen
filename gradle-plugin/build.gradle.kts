@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.github.fenrur.vaadin-dsl-codegen"
+group = "com.github.fenrur.vaadin-codegen"
 version = "1.0.0"
 
 repositories {
@@ -27,8 +27,8 @@ dependencies {
 gradlePlugin {
     plugins {
         create("vaadinDslCodegen") {
-            id = "com.github.fenrur.vaadin-dsl-codegen"
-            implementationClass = "com.github.fenrur.vaadindslcodegen.VaadinDslCodegenPlugin"
+            id = "com.github.fenrur.vaadin-codegen"
+            implementationClass = "com.github.fenrur.vaadin.codegen.VaadinDslCodegenPlugin"
             displayName = "Vaadin DSL Codegen"
             description = "Gradle plugin for configuring Vaadin DSL code generation"
         }
@@ -53,7 +53,7 @@ publishing {
             pom {
                 name.set("Vaadin DSL Codegen Gradle Plugin")
                 description.set("Gradle plugin for configuring Vaadin DSL code generation")
-                url.set("https://github.com/fenrur/vaadin-dsl-codegen")
+                url.set("https://github.com/fenrur/vaadin-codegen")
 
                 licenses {
                     license {
@@ -70,9 +70,9 @@ publishing {
                 }
 
                 scm {
-                    url.set("https://github.com/fenrur/vaadin-dsl-codegen")
-                    connection.set("scm:git:git://github.com/fenrur/vaadin-dsl-codegen.git")
-                    developerConnection.set("scm:git:ssh://github.com/fenrur/vaadin-dsl-codegen.git")
+                    url.set("https://github.com/fenrur/vaadin-codegen")
+                    connection.set("scm:git:git://github.com/fenrur/vaadin-codegen.git")
+                    developerConnection.set("scm:git:ssh://github.com/fenrur/vaadin-codegen.git")
                 }
             }
         }

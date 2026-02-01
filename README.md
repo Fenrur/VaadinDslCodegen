@@ -1,10 +1,10 @@
-# Vaadin DSL Codegen
+# Vaadin Codegen
 
 A KSP (Kotlin Symbol Processing) processor that generates factory classes and DSL extension functions for Vaadin components.
 
 ## Installation
 
-[![](https://jitpack.io/v/fenrur/vaadin-dsl-codegen.svg)](https://jitpack.io/#fenrur/vaadin-dsl-codegen)
+[![](https://jitpack.io/v/fenrur/vaadin-codegen.svg)](https://jitpack.io/#fenrur/vaadin-codegen)
 
 ### Gradle (Kotlin DSL)
 
@@ -18,8 +18,8 @@ pluginManagement {
     }
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == "com.github.fenrur.vaadin-dsl-codegen") {
-                useModule("com.github.fenrur.vaadin-dsl-codegen:gradle-plugin:${requested.version}")
+            if (requested.id.id == "com.github.fenrur.vaadin-codegen") {
+                useModule("com.github.fenrur.vaadin-codegen:gradle-plugin:${requested.version}")
             }
         }
     }
@@ -33,16 +33,16 @@ dependencyResolutionManagement {
 }
 
 // build.gradle.kts
-import com.github.fenrur.vaadindslcodegen.VaadinDslCodegenExtension.Mode
+import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 
 plugins {
     kotlin("jvm") version "2.1.0"
-    id("com.github.fenrur.vaadin-dsl-codegen") version "1.0.0" // Applies KSP automatically
+    id("com.github.fenrur.vaadin-codegen") version "1.0.0" // Applies KSP automatically
 }
 
 dependencies {
-    implementation("com.github.fenrur.vaadin-dsl-codegen:library:1.0.0")
-    ksp("com.github.fenrur.vaadin-dsl-codegen:processor:1.0.0")
+    implementation("com.github.fenrur.vaadin-codegen:library:1.0.0")
+    ksp("com.github.fenrur.vaadin-codegen:processor:1.0.0")
 }
 
 vaadinDslCodegen {
@@ -62,8 +62,8 @@ pluginManagement {
     }
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == 'com.github.fenrur.vaadin-dsl-codegen') {
-                useModule("com.github.fenrur.vaadin-dsl-codegen:gradle-plugin:${requested.version}")
+            if (requested.id.id == 'com.github.fenrur.vaadin-codegen') {
+                useModule("com.github.fenrur.vaadin-codegen:gradle-plugin:${requested.version}")
             }
         }
     }
@@ -77,16 +77,16 @@ dependencyResolutionManagement {
 }
 
 // build.gradle
-import com.github.fenrur.vaadindslcodegen.VaadinDslCodegenExtension.Mode
+import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.1.0'
-    id 'com.github.fenrur.vaadin-dsl-codegen' version '1.0.0' // Applies KSP automatically
+    id 'com.github.fenrur.vaadin-codegen' version '1.0.0' // Applies KSP automatically
 }
 
 dependencies {
-    implementation 'com.github.fenrur.vaadin-dsl-codegen:library:1.0.0'
-    ksp 'com.github.fenrur.vaadin-dsl-codegen:processor:1.0.0'
+    implementation 'com.github.fenrur.vaadin-codegen:library:1.0.0'
+    ksp 'com.github.fenrur.vaadin-codegen:processor:1.0.0'
 }
 
 vaadinDslCodegen {
@@ -110,7 +110,7 @@ When using Spring mode, make sure `VaadinDslApplicationContextHolder` is availab
 ```kotlin
 // This class is provided in the library module
 // Just make sure Spring component scanning includes the package
-@ComponentScan("com.github.fenrur.vaadindslcodegen")
+@ComponentScan("com.github.fenrur.vaadin.codegen")
 ```
 
 ## Usage
@@ -122,8 +122,8 @@ When using Spring mode, make sure `VaadinDslApplicationContextHolder` is availab
 Marks a class for DSL factory generation.
 
 ```kotlin
-import com.github.fenrur.vaadindslcodegen.GenDsl
-import com.github.fenrur.vaadindslcodegen.GenDslParam
+import com.github.fenrur.vaadin.codegen.GenDsl
+import com.github.fenrur.vaadin.codegen.GenDslParam
 
 @GenDsl
 class CustomButton(

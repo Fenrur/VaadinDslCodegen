@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.github.fenrur.vaadin-dsl-codegen"
+    group = "com.github.fenrur.vaadin-codegen"
     version = "1.0.0"
 
     repositories {

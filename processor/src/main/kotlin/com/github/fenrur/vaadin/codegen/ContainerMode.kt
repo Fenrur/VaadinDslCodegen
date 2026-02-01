@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindslcodegen
+package com.github.fenrur.vaadin.codegen
 
 /**
  * The dependency injection container mode.

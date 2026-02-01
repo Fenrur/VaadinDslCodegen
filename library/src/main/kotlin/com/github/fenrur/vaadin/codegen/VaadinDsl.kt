@@ -1,4 +1,4 @@
-package com.github.fenrur.vaadindslcodegen
+package com.github.fenrur.vaadin.codegen
 
 /**
  * Marks a class, type, or function as part of the Vaadin DSL.

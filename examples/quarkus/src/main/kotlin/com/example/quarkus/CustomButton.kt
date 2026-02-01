@@ -1,7 +1,7 @@
 package com.example.quarkus
 
-import com.github.fenrur.vaadindslcodegen.GenDsl
-import com.github.fenrur.vaadindslcodegen.GenDslParam
+import com.github.fenrur.vaadin.codegen.GenDsl
+import com.github.fenrur.vaadin.codegen.GenDslParam
 import com.vaadin.flow.component.button.Button
 import org.slf4j.Logger
 
