@@ -113,6 +113,114 @@ When using Spring mode, make sure `VaadinDslApplicationContextHolder` is availab
 @ComponentScan("com.github.fenrur.vaadin.codegen")
 ```
 
+## Quarkus + KSP Circular Dependency Fix
+
+When using KSP with Quarkus, you may encounter a circular dependency error between `kspKotlin`, `quarkusGenerateCode`, and `processResources` tasks.
+
+See [quarkusio/quarkus#29698](https://github.com/quarkusio/quarkus/issues/29698) for more details.
+
+### Fix for Gradle (Kotlin DSL)
+
+Add this to your `build.gradle.kts`:
+
+```kotlin
+// Fix circular dependency between KSP and Quarkus
+afterEvaluate {
+    tasks.named("kspKotlin") {
+        setDependsOn(dependsOn.filterNot {
+            it.toString().contains("quarkusGenerateCode")
+        })
+    }
+}
+```
+
+### Fix for Gradle (Groovy DSL)
+
+Add this to your `build.gradle`:
+
+```groovy
+// Fix circular dependency between KSP and Quarkus (https://github.com/quarkusio/quarkus/issues/29698)
+afterEvaluate {
+    tasks.getByName("quarkusGenerateCode").setDependsOn(
+        tasks.getByName("quarkusGenerateCode").dependsOn.findAll { dep ->
+            !(dep instanceof Provider && ((Provider) dep).get().name == "processResources")
+        }
+    )
+    tasks.getByName("quarkusGenerateCodeDev").setDependsOn(
+        tasks.getByName("quarkusGenerateCodeDev").dependsOn.findAll { dep ->
+            !(dep instanceof Provider && ((Provider) dep).get().name == "processResources")
+        }
+    )
+}
+```
+
+## Push Configuration (WebSocket)
+
+For reactive features and server-side push updates, configure your `AppShellConfigurator` with WebSocket transport.
+
+### Quarkus
+
+Create a separate class implementing `AppShellConfigurator`:
+
+```kotlin
+import com.vaadin.flow.component.page.AppShellConfigurator
+import com.vaadin.flow.component.page.Push
+import com.vaadin.flow.server.PWA
+import com.vaadin.flow.shared.communication.PushMode
+import com.vaadin.flow.shared.ui.Transport
+import com.vaadin.flow.theme.Theme
+import jakarta.enterprise.context.ApplicationScoped
+
+@ApplicationScoped
+@Push(PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
+@PWA(name = "My Application", shortName = "MyApp")
+@Theme("lumo")
+class VaadinAppShellConfigurator : AppShellConfigurator
+```
+
+### Spring Boot
+
+Add `AppShellConfigurator` to your main application class:
+
+```kotlin
+import com.vaadin.flow.component.page.AppShellConfigurator
+import com.vaadin.flow.component.page.Push
+import com.vaadin.flow.server.PWA
+import com.vaadin.flow.shared.communication.PushMode
+import com.vaadin.flow.shared.ui.Transport
+import com.vaadin.flow.theme.Theme
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ComponentScan
+
+@SpringBootApplication
+@ComponentScan(basePackages = ["com.example.spring", "com.github.fenrur.vaadin.codegen"])
+@Push(PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
+@PWA(name = "My Application", shortName = "MyApp")
+@Theme("lumo")
+class Application : AppShellConfigurator
+
+fun main(args: Array<String>) {
+    runApplication<Application>(*args)
+}
+```
+
+### Push Modes
+
+| Mode | Description |
+|------|-------------|
+| `PushMode.AUTOMATIC` | Server pushes changes automatically when UI is modified |
+| `PushMode.MANUAL` | You must call `ui.push()` manually to send updates |
+| `PushMode.DISABLED` | Push is disabled |
+
+### Transport Options
+
+| Transport | Description |
+|-----------|-------------|
+| `Transport.WEBSOCKET` | Pure WebSocket connection (recommended for real-time updates) |
+| `Transport.WEBSOCKET_XHR` | WebSocket with XHR fallback (default) |
+| `Transport.LONG_POLLING` | HTTP long polling (for environments where WebSocket is not available) |
+
 ## Usage
 
 ### Annotations

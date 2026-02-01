@@ -1,12 +1,21 @@
 package com.example.spring
 
+import com.vaadin.flow.component.page.AppShellConfigurator
+import com.vaadin.flow.component.page.Push
+import com.vaadin.flow.server.PWA
+import com.vaadin.flow.shared.communication.PushMode
+import com.vaadin.flow.shared.ui.Transport
+import com.vaadin.flow.theme.Theme
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.ComponentScan
 
 @SpringBootApplication
 @ComponentScan(basePackages = ["com.example.spring", "com.github.fenrur.vaadin.codegen"])
-class Application
+@Push(PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
+@PWA(name = "Vaadin Codegen Spring Example", shortName = "Codegen Spring")
+@Theme("lumo")
+class Application : AppShellConfigurator
 
 fun main(args: Array<String>) {
     runApplication<Application>(*args)
