@@ -1,6 +1,4 @@
 jdk:
-  - openjdk11
-
+  - openjdk17
 install:
-  - ./gradlew :library:publishToMavenLocal :processor:publishToMavenLocal
-  - cd gradle-plugin && ../gradlew publishToMavenLocal
+  - ./gradlew publishToMavenLocal -x :examples:quarkus:build -x :examples:spring:build
