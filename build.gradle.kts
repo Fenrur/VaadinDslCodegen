@@ -4,7 +4,7 @@ plugins {
 
 allprojects {
     group = "com.github.fenrur.vaadin-codegen"
-    version = "1.0.0"
+    version = System.getenv("VERSION") ?: "1.0.0"
 
     repositories {
         mavenCentral()
