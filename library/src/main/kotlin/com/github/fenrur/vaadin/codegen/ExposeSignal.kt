@@ -3,25 +3,34 @@ package com.github.fenrur.vaadin.codegen
 /**
  * Marks a property for signal binding extension generation.
  *
- * When applied to a property of type `BindableMutableSignal<T>`, the code generator will
- * create an extension function that allows binding a `MutableSignal<T>` to this property.
+ * When applied to a property of type `BindableMutableSignal<T>` or `BindableSignal<T>`,
+ * the code generator will create an extension function that allows binding a signal to this property:
+ * - `BindableMutableSignal<T>` → generates an extension accepting `MutableSignal<T>`
+ * - `BindableSignal<T>` → generates an extension accepting `Signal<T>`
  *
  * **Visibility requirements:**
- * - The property must be `public` or `internal`
- * - `protected` and `private` properties will cause a compilation error
+ * - The property must be `public`
+ * - `internal`, `protected` and `private` properties will cause a compilation error
  *
  * Example:
  * ```kotlin
  * class MyComponent : Div() {
  *     @ExposeSignal
- *     internal val userName: BindableMutableSignal<String> = bindableMutableSignalOf()
+ *     val userName: BindableMutableSignal<String> = bindableMutableSignalOf()
+ *
+ *     @ExposeSignal
+ *     val label: BindableSignal<String> = bindableSignalOf()
  * }
  * ```
  *
- * Generated extension:
+ * Generated extensions:
  * ```kotlin
  * fun MyComponent.userName(signal: MutableSignal<String>) {
  *     this.userName.bindTo(signal)
+ * }
+ *
+ * fun MyComponent.label(signal: Signal<String>) {
+ *     this.label.bindTo(signal)
  * }
  * ```
  *
@@ -32,7 +41,9 @@ package com.github.fenrur.vaadin.codegen
  * ```
  *
  * @see com.github.fenrur.signal.BindableMutableSignal
+ * @see com.github.fenrur.signal.BindableSignal
  * @see com.github.fenrur.signal.MutableSignal
+ * @see com.github.fenrur.signal.Signal
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)

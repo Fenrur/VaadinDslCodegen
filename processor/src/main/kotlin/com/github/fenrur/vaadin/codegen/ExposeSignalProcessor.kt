@@ -15,8 +15,10 @@ import com.google.devtools.ksp.validate
 /**
  * KSP processor that generates extension functions for properties annotated with @ExposeSignal.
  *
- * For each property of type `BindableMutableSignal<T>` annotated with `@ExposeSignal`,
- * generates an extension function that binds a `MutableSignal<T>` to the property.
+ * For each property of type `BindableMutableSignal<T>` or `BindableSignal<T>` annotated with `@ExposeSignal`,
+ * generates an extension function that binds a signal to the property:
+ * - `BindableMutableSignal<T>` → `MutableSignal<T>` parameter
+ * - `BindableSignal<T>` → `Signal<T>` parameter
  */
 class ExposeSignalProcessor(
     private val codeGenerator: CodeGenerator,
@@ -26,6 +28,7 @@ class ExposeSignalProcessor(
     companion object {
         private const val EXPOSE_SIGNAL_ANNOTATION = "com.github.fenrur.vaadin.codegen.ExposeSignal"
         private const val BINDABLE_MUTABLE_SIGNAL_QUALIFIED = "com.github.fenrur.signal.BindableMutableSignal"
+        private const val BINDABLE_SIGNAL_QUALIFIED = "com.github.fenrur.signal.BindableSignal"
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -55,8 +58,8 @@ class ExposeSignalProcessor(
 
     /**
      * Validates that the property meets all requirements:
-     * - Must be public or internal (not private or protected)
-     * - Must be of type BindableMutableSignal<T>
+     * - Must be public (not internal, private or protected)
+     * - Must be of type BindableMutableSignal<T> or BindableSignal<T>
      *
      * @return true if valid, false if invalid (and logs error)
      */
@@ -64,14 +67,15 @@ class ExposeSignalProcessor(
         val propertyName = property.simpleName.asString()
         val containingClass = property.parentDeclaration?.simpleName?.asString() ?: "<unknown>"
 
-        // Check visibility - only public and internal are allowed
+        // Check visibility - only public is allowed
         val modifiers = property.modifiers
         val isPrivate = Modifier.PRIVATE in modifiers
         val isProtected = Modifier.PROTECTED in modifiers
+        val isInternal = Modifier.INTERNAL in modifiers
 
         if (isPrivate) {
             logger.error(
-                "@ExposeSignal property '$propertyName' in class '$containingClass' must be public or internal, but is private. " +
+                "@ExposeSignal property '$propertyName' in class '$containingClass' must be public, but is private. " +
                 "Extension functions cannot access private members.",
                 property
             )
@@ -80,20 +84,29 @@ class ExposeSignalProcessor(
 
         if (isProtected) {
             logger.error(
-                "@ExposeSignal property '$propertyName' in class '$containingClass' must be public or internal, but is protected. " +
+                "@ExposeSignal property '$propertyName' in class '$containingClass' must be public, but is protected. " +
                 "Extension functions cannot access protected members.",
                 property
             )
             return false
         }
 
-        // Check type - must be BindableMutableSignal<T>
+        if (isInternal) {
+            logger.error(
+                "@ExposeSignal property '$propertyName' in class '$containingClass' must be public, but is internal. " +
+                "Extension functions cannot access internal members from generated code.",
+                property
+            )
+            return false
+        }
+
+        // Check type - must be BindableMutableSignal<T> or BindableSignal<T>
         val propertyType = property.type.resolve()
         val typeQualifiedName = propertyType.declaration.qualifiedName?.asString()
 
-        if (typeQualifiedName != BINDABLE_MUTABLE_SIGNAL_QUALIFIED) {
+        if (typeQualifiedName != BINDABLE_MUTABLE_SIGNAL_QUALIFIED && typeQualifiedName != BINDABLE_SIGNAL_QUALIFIED) {
             logger.error(
-                "@ExposeSignal property '$propertyName' in class '$containingClass' must be of type BindableMutableSignal<T>, " +
+                "@ExposeSignal property '$propertyName' in class '$containingClass' must be of type BindableMutableSignal<T> or BindableSignal<T>, " +
                 "but is '$typeQualifiedName'.",
                 property
             )
@@ -104,7 +117,7 @@ class ExposeSignalProcessor(
         if (propertyType.arguments.isEmpty()) {
             logger.error(
                 "@ExposeSignal property '$propertyName' in class '$containingClass' must have a type parameter, " +
-                "e.g., BindableMutableSignal<String>.",
+                "e.g., BindableMutableSignal<String> or BindableSignal<String>.",
                 property
             )
             return false
@@ -125,11 +138,20 @@ class ExposeSignalProcessor(
 
         // Collect all imports needed
         val imports = mutableSetOf<String>()
-        imports.add("com.github.fenrur.signal.MutableSignal")
 
-        // Add imports for type arguments
+        // Add signal type imports based on property types
         properties.forEach { property ->
-            val typeArg = property.type.resolve().arguments.firstOrNull()?.type?.resolve()
+            val propertyType = property.type.resolve()
+            val typeQualifiedName = propertyType.declaration.qualifiedName?.asString()
+
+            if (typeQualifiedName == BINDABLE_MUTABLE_SIGNAL_QUALIFIED) {
+                imports.add("com.github.fenrur.signal.MutableSignal")
+            } else if (typeQualifiedName == BINDABLE_SIGNAL_QUALIFIED) {
+                imports.add("com.github.fenrur.signal.Signal")
+            }
+
+            // Add imports for type arguments
+            val typeArg = propertyType.arguments.firstOrNull()?.type?.resolve()
             if (typeArg != null) {
                 addTypeImports(typeArg, imports)
             }
@@ -170,15 +192,23 @@ class ExposeSignalProcessor(
         property: KSPropertyDeclaration
     ) {
         val propertyName = property.simpleName.asString()
-        val typeArg = property.type.resolve().arguments.firstOrNull()?.type?.resolve()
+        val propertyType = property.type.resolve()
+        val typeQualifiedName = propertyType.declaration.qualifiedName?.asString()
+        val typeArg = propertyType.arguments.firstOrNull()?.type?.resolve()
         val typeArgName = typeArg?.toSimpleTypeName() ?: "Any"
+
+        val signalType = if (typeQualifiedName == BINDABLE_MUTABLE_SIGNAL_QUALIFIED) {
+            "MutableSignal"
+        } else {
+            "Signal"
+        }
 
         writer.appendLine("/**")
         writer.appendLine(" * Binds the given [signal] to the [$propertyName] property.")
         writer.appendLine(" *")
         writer.appendLine(" * @param signal the signal to bind")
         writer.appendLine(" */")
-        writer.appendLine("fun $className.$propertyName(signal: MutableSignal<$typeArgName>) {")
+        writer.appendLine("fun $className.$propertyName(signal: $signalType<$typeArgName>) {")
         writer.appendLine("    this.$propertyName.bindTo(signal)")
         writer.appendLine("}")
     }

@@ -1,4 +1,4 @@
-package com.example.quarkus
+package com.example.spring
 
 import com.github.fenrur.signal.BindableMutableSignal
 import com.github.fenrur.signal.BindableSignal
@@ -14,7 +14,7 @@ import com.vaadin.flow.component.html.Paragraph
  * Example component demonstrating @ExposeSignal annotation.
  *
  * The processor will generate:
- * - SignalCardFactory with @ApplicationScoped (from @GenDsl)
+ * - SignalCardFactory with @Component (from @GenDsl)
  * - signalCard() DSL extension function
  * - title(signal) extension function (from @ExposeSignal on BindableMutableSignal title property)
  * - content(signal) extension function (from @ExposeSignal on BindableMutableSignal content property)

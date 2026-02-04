@@ -12,6 +12,7 @@ plugins {
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.vaadin.com/vaadin-prereleases") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 val vaadinVersion = "24.6.3"
@@ -35,6 +36,9 @@ dependencies {
     // Our library
     implementation(project(":library"))
     ksp(project(":processor"))
+
+    // Signal library for @ExposeSignal
+    implementation("com.github.fenrur:signal:1.0.0")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.16")
