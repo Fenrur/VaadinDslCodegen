@@ -14,7 +14,7 @@ import com.vaadin.flow.component.html.Paragraph
  * Example component demonstrating @ExposeSignal annotation.
  *
  * The processor will generate:
- * - SignalCardFactory with @Component (from @GenDsl)
+ * - SignalCardDsl with direct instantiation (no factory, no DI)
  * - signalCard() DSL extension function
  * - title(signal) extension function (from @ExposeSignal on BindableMutableSignal title property)
  * - content(signal) extension function (from @ExposeSignal on BindableMutableSignal content property)

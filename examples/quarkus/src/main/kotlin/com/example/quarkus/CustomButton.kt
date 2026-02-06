@@ -1,7 +1,7 @@
 package com.example.quarkus
 
 import com.github.fenrur.vaadin.codegen.GenDsl
-import com.github.fenrur.vaadin.codegen.GenDslParam
+import com.github.fenrur.vaadin.codegen.GenDslInject
 import com.vaadin.flow.component.button.Button
 import org.slf4j.Logger
 
@@ -14,9 +14,9 @@ import org.slf4j.Logger
  */
 @GenDsl
 class CustomButton(
-    private val logger: Logger,                    // Quarkus Arc injected
-    @GenDslParam label: String,                    // DSL parameter
-    @GenDslParam val primary: Boolean = false      // DSL parameter with default
+    @GenDslInject private val logger: Logger,      // Quarkus Arc injected
+    label: String,                                 // DSL parameter
+    val primary: Boolean = false                   // DSL parameter with default
 ) : Button(label) {
 
     init {

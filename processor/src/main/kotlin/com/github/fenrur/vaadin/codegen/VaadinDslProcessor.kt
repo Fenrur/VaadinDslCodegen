@@ -24,7 +24,7 @@ class VaadinDslProcessor(
 
     companion object {
         private const val GEN_DSL_ANNOTATION = "com.github.fenrur.vaadin.codegen.GenDsl"
-        private const val GEN_DSL_PARAM_ANNOTATION = "com.github.fenrur.vaadin.codegen.GenDslParam"
+        private const val GEN_DSL_INJECT_ANNOTATION = "com.github.fenrur.vaadin.codegen.GenDslInject"
 
         private val VAADIN_COMPONENT_PACKAGES = setOf(
             "com.vaadin.flow.component",
@@ -116,7 +116,7 @@ class VaadinDslProcessor(
                 name = paramName,
                 type = param.type.resolve(),
                 typeName = param.type.resolve().toTypeName(),
-                isGenDslParam = param.hasAnnotation(GEN_DSL_PARAM_ANNOTATION),
+                isInjected = param.hasAnnotation(GEN_DSL_INJECT_ANNOTATION),
                 hasDefault = param.hasDefault,
                 defaultValue = if (param.hasDefault) sourceDefaults[paramName] else null
             )
@@ -127,7 +127,7 @@ class VaadinDslProcessor(
 
         logger.info("  - Extends Component: $extendsComponent")
         logger.info("  - Constructor params: ${params.size}")
-        logger.info("  - DSL params: ${params.count { it.isGenDslParam }}")
+        logger.info("  - Injected params: ${params.count { it.isInjected }}")
 
         // Generate code
         generateFactory(
@@ -148,11 +148,79 @@ class VaadinDslProcessor(
         params: List<ConstructorParamInfo>,
         extendsComponent: Boolean
     ) {
-        val injectedParams = params.filter { !it.isGenDslParam }
-        val dslParams = params.filter { it.isGenDslParam }
+        val injectedParams = params.filter { it.isInjected }
+        val dslParams = params.filter { !it.isInjected }
         val dslFunctionName = className.replaceFirstChar { it.lowercase() }
 
-        // Collect all imports needed
+        if (injectedParams.isEmpty()) {
+            // No injected params: generate DSL-only file (no factory class)
+            generateDslOnly(classDecl, packageName, className, dslFunctionName, dslParams, params, extendsComponent)
+        } else {
+            // Has injected params: generate factory class + DSL function
+            generateFactoryWithDsl(classDecl, packageName, className, factoryClassName, dslFunctionName, injectedParams, dslParams, params, extendsComponent)
+        }
+    }
+
+    private fun generateDslOnly(
+        classDecl: KSClassDeclaration,
+        packageName: String,
+        className: String,
+        dslFunctionName: String,
+        dslParams: List<ConstructorParamInfo>,
+        allParams: List<ConstructorParamInfo>,
+        extendsComponent: Boolean
+    ) {
+        val fileName = "${className}Dsl"
+
+        val imports = mutableSetOf<String>()
+        imports.add("com.github.fenrur.vaadin.codegen.VaadinDsl")
+
+        if (extendsComponent) {
+            imports.add("com.vaadin.flow.component.HasComponents")
+        }
+
+        // Add imports for DSL parameter types
+        dslParams.forEach { param ->
+            val qualifiedName = param.type.declaration.qualifiedName?.asString()
+            if (qualifiedName != null && !isBuiltinType(qualifiedName)) {
+                imports.add(qualifiedName)
+            }
+        }
+
+        val file = codeGenerator.createNewFile(
+            dependencies = Dependencies(aggregating = true, sources = arrayOf(classDecl.containingFile!!)),
+            packageName = packageName,
+            fileName = fileName
+        )
+
+        file.bufferedWriter().use { writer ->
+            writer.appendLine("package $packageName")
+            writer.appendLine()
+
+            imports.sorted().forEach { import ->
+                writer.appendLine("import $import")
+            }
+            writer.appendLine()
+
+            if (extendsComponent) {
+                writeDirectDslFunction(writer, className, dslFunctionName, dslParams)
+            }
+        }
+
+        logger.info("Generated: $packageName.$fileName")
+    }
+
+    private fun generateFactoryWithDsl(
+        classDecl: KSClassDeclaration,
+        packageName: String,
+        className: String,
+        factoryClassName: String,
+        dslFunctionName: String,
+        injectedParams: List<ConstructorParamInfo>,
+        dslParams: List<ConstructorParamInfo>,
+        allParams: List<ConstructorParamInfo>,
+        extendsComponent: Boolean
+    ) {
         val imports = mutableSetOf<String>()
         imports.add("com.github.fenrur.vaadin.codegen.VaadinDsl")
 
@@ -173,7 +241,7 @@ class VaadinDslProcessor(
         }
 
         // Add imports for parameter types
-        params.forEach { param ->
+        allParams.forEach { param ->
             val qualifiedName = param.type.declaration.qualifiedName?.asString()
             if (qualifiedName != null && !isBuiltinType(qualifiedName)) {
                 imports.add(qualifiedName)
@@ -190,16 +258,13 @@ class VaadinDslProcessor(
             writer.appendLine("package $packageName")
             writer.appendLine()
 
-            // Write imports
             imports.sorted().forEach { import ->
                 writer.appendLine("import $import")
             }
             writer.appendLine()
 
-            // Factory class
-            writeFactoryClass(writer, className, factoryClassName, injectedParams, dslParams, params)
+            writeFactoryClass(writer, className, factoryClassName, injectedParams, dslParams, allParams)
 
-            // DSL function (only for Vaadin components)
             if (extendsComponent) {
                 writer.appendLine()
                 writeDslFunction(writer, className, factoryClassName, dslFunctionName, dslParams)
@@ -259,6 +324,41 @@ class VaadinDslProcessor(
         writer.appendLine("        return $className($allParamNames)")
         writer.appendLine("    }")
 
+        writer.appendLine("}")
+    }
+
+    private fun writeDirectDslFunction(
+        writer: java.io.BufferedWriter,
+        className: String,
+        dslFunctionName: String,
+        dslParams: List<ConstructorParamInfo>
+    ) {
+        writer.appendLine("@VaadinDsl")
+
+        if (dslParams.isEmpty()) {
+            writer.appendLine("fun HasComponents.$dslFunctionName(")
+            writer.appendLine("    block: $className.() -> Unit = {}")
+            writer.appendLine("): $className {")
+        } else {
+            writer.appendLine("fun HasComponents.$dslFunctionName(")
+            dslParams.forEachIndexed { index, param ->
+                writer.appendLine("    ${param.paramDeclaration},")
+            }
+            writer.appendLine("    block: $className.() -> Unit = {}")
+            writer.appendLine("): $className {")
+        }
+
+        // Direct instantiation
+        val dslParamNames = dslParams.joinToString(", ") { it.name }
+        if (dslParamNames.isEmpty()) {
+            writer.appendLine("    val component = $className()")
+        } else {
+            writer.appendLine("    val component = $className($dslParamNames)")
+        }
+
+        writer.appendLine("    add(component)")
+        writer.appendLine("    component.block()")
+        writer.appendLine("    return component")
         writer.appendLine("}")
     }
 
@@ -469,7 +569,7 @@ class VaadinDslProcessor(
         val name: String,
         val type: KSType,
         val typeName: String,
-        val isGenDslParam: Boolean,
+        val isInjected: Boolean,
         val hasDefault: Boolean,
         val defaultValue: String? = null
     ) {
