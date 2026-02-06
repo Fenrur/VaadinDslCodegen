@@ -363,17 +363,22 @@ examples/
 
 ### Running the Examples
 
+Each example is a standalone Gradle project. First, publish the library to mavenLocal:
+```bash
+./gradlew publishToMavenLocal
+```
+
 **Quarkus:**
 ```bash
 cd examples/quarkus
-../gradlew quarkusDev
+./gradlew quarkusDev
 # Open http://localhost:8082
 ```
 
 **Spring:**
 ```bash
 cd examples/spring
-../gradlew bootRun
+./gradlew bootRun
 # Open http://localhost:8081
 ```
 
