@@ -17,3 +17,16 @@ Thumbs.db
 
 # Kotlin
 *.class
+.kotlin/
+
+# Node/Vaadin frontend
+node_modules/
+package.json
+package-lock.json
+pnpm-lock.yaml
+.npmrc
+tsconfig.json
+types.d.ts
+vite.config.ts
+vite.generated.ts
+**/frontend/generated/

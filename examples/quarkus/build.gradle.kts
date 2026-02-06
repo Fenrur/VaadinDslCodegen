@@ -20,12 +20,12 @@ java {
 
 dependencies {
     // BOM
-    implementation(enforcedPlatform("com.vaadin:vaadin-bom:$vaadinVersion"))
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusVersion"))
 
     // Vaadin Quarkus
-    implementation("com.vaadin:vaadin-quarkus-extension:$vaadinVersion")
-    implementation("com.vaadin:vaadin")
+    implementation("com.vaadin:vaadin-quarkus-extension:$vaadinVersion") {
+        exclude(group = "com.vaadin", module = "copilot")
+    }
 
     // Vaadin DSL Codegen library
     implementation("com.github.fenrur.vaadin-codegen:library:$vaadinCodegenVersion")
@@ -36,6 +36,7 @@ dependencies {
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.16")
+
 
     // Test
     testImplementation("io.quarkus:quarkus-junit5")
