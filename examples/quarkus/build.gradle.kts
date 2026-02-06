@@ -2,20 +2,15 @@ import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 
 plugins {
     kotlin("jvm")
-    kotlin("plugin.allopen") version "2.1.0"
-    id("io.quarkus") version "3.17.7"
-    id("com.vaadin") version "24.6.3"
-    id("com.github.fenrur.vaadin-codegen") // Applies KSP automatically
-}
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://maven.vaadin.com/vaadin-prereleases") }
-    maven { url = uri("https://jitpack.io") }
+    kotlin("plugin.allopen")
+    id("io.quarkus")
+    id("com.vaadin")
+    id("com.github.fenrur.vaadin-codegen")
 }
 
 val vaadinVersion = "24.6.3"
 val quarkusVersion = "3.17.7"
+val vaadinCodegenVersion = "1.0.0"
 
 java {
     toolchain {
@@ -32,9 +27,9 @@ dependencies {
     implementation("com.vaadin:vaadin-quarkus-extension:$vaadinVersion")
     implementation("com.vaadin:vaadin")
 
-    // Our library
-    implementation(project(":library"))
-    ksp(project(":processor"))
+    // Vaadin DSL Codegen library
+    implementation("com.github.fenrur.vaadin-codegen:library:$vaadinCodegenVersion")
+    ksp("com.github.fenrur.vaadin-codegen:processor:$vaadinCodegenVersion")
 
     // Signal library for @ExposeSignal
     implementation("com.github.fenrur:signal:1.0.0")

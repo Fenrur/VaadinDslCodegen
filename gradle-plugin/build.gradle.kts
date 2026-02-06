@@ -41,38 +41,39 @@ kotlin {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = "gradle-plugin"
-            version = project.version.toString()
-
-            from(components["java"])
-
-            pom {
-                name.set("Vaadin DSL Codegen Gradle Plugin")
-                description.set("Gradle plugin for configuring Vaadin DSL code generation")
-                url.set("https://github.com/fenrur/vaadin-codegen")
-
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
+// Configure publications after they are created by java-gradle-plugin
+afterEvaluate {
+    publishing {
+        publications {
+            withType<MavenPublication> {
+                if (name != "vaadinDslCodegenPluginMarkerMaven") {
+                    artifactId = "gradle-plugin"
                 }
 
-                developers {
-                    developer {
-                        id.set("fenrur")
-                        name.set("Livio TINNIRELLO")
-                    }
-                }
-
-                scm {
+                pom {
+                    name.set("Vaadin DSL Codegen Gradle Plugin")
+                    description.set("Gradle plugin for configuring Vaadin DSL code generation")
                     url.set("https://github.com/fenrur/vaadin-codegen")
-                    connection.set("scm:git:git://github.com/fenrur/vaadin-codegen.git")
-                    developerConnection.set("scm:git:ssh://github.com/fenrur/vaadin-codegen.git")
+
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("fenrur")
+                            name.set("Livio TINNIRELLO")
+                        }
+                    }
+
+                    scm {
+                        url.set("https://github.com/fenrur/vaadin-codegen")
+                        connection.set("scm:git:git://github.com/fenrur/vaadin-codegen.git")
+                        developerConnection.set("scm:git:ssh://github.com/fenrur/vaadin-codegen.git")
+                    }
                 }
             }
         }

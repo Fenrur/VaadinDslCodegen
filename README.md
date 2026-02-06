@@ -178,6 +178,49 @@ import jakarta.enterprise.context.ApplicationScoped
 class VaadinAppShellConfigurator : AppShellConfigurator
 ```
 
+### Spring Boot
+
+Add `AppShellConfigurator` to your main application class:
+
+```kotlin
+import com.vaadin.flow.component.page.AppShellConfigurator
+import com.vaadin.flow.component.page.Push
+import com.vaadin.flow.server.PWA
+import com.vaadin.flow.shared.communication.PushMode
+import com.vaadin.flow.shared.ui.Transport
+import com.vaadin.flow.theme.Theme
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ComponentScan
+
+@SpringBootApplication
+@ComponentScan(basePackages = ["com.example.spring", "com.github.fenrur.vaadin.codegen"])
+@Push(PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
+@PWA(name = "My Application", shortName = "MyApp")
+@Theme("lumo")
+class Application : AppShellConfigurator
+
+fun main(args: Array<String>) {
+    runApplication<Application>(*args)
+}
+```
+
+### Push Modes
+
+| Mode | Description |
+|------|-------------|
+| `PushMode.AUTOMATIC` | Server pushes changes automatically when UI is modified |
+| `PushMode.MANUAL` | You must call `ui.push()` manually to send updates |
+| `PushMode.DISABLED` | Push is disabled |
+
+### Transport Options
+
+| Transport | Description |
+|-----------|-------------|
+| `Transport.WEBSOCKET` | Pure WebSocket connection (recommended for real-time updates) |
+| `Transport.WEBSOCKET_XHR` | WebSocket with XHR fallback (default) |
+| `Transport.LONG_POLLING` | HTTP long polling (for environments where WebSocket is not available) |
+
 ## Usage
 
 ### Annotations
