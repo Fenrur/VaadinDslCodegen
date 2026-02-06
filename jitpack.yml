@@ -2,3 +2,4 @@ jdk:
   - openjdk17
 install:
   - ./gradlew publishToMavenLocal -x :examples:quarkus:build -x :examples:spring:build
+  - cd gradle-plugin && ../gradlew publishToMavenLocal
