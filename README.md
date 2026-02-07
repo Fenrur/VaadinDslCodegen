@@ -254,10 +254,11 @@ When no `@GenDslInject` parameters exist, the component is instantiated directly
 Marks a property for signal binding extension generation. When applied to a property of type `BindableMutableSignal<T>` or `BindableSignal<T>`, the processor generates an extension function that allows binding a signal to this property.
 
 **Supported types:**
-| Property Type | Generated Extension Parameter |
-|---------------|-------------------------------|
-| `BindableMutableSignal<T>` | `MutableSignal<T>` |
-| `BindableSignal<T>` | `Signal<T>` |
+
+| Property Type              | Generated Extension Parameter |
+|----------------------------|-------------------------------|
+| `BindableMutableSignal<T>` | `MutableSignal<T>`            |
+| `BindableSignal<T>`        | `Signal<T>`                   |
 
 **Visibility requirements:**
 - The property **must be `public`**
