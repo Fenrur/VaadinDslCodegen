@@ -249,6 +249,71 @@ Marks a constructor parameter as a DI-injected dependency. By default, all const
 
 When no `@GenDslInject` parameters exist, the component is instantiated directly without a factory class.
 
+#### @ExposeSignal
+
+Marks a property for signal binding extension generation. When applied to a property of type `BindableMutableSignal<T>` or `BindableSignal<T>`, the processor generates an extension function that allows binding a signal to this property.
+
+**Supported types:**
+| Property Type | Generated Extension Parameter |
+|---------------|-------------------------------|
+| `BindableMutableSignal<T>` | `MutableSignal<T>` |
+| `BindableSignal<T>` | `Signal<T>` |
+
+**Visibility requirements:**
+- The property **must be `public`**
+- `internal`, `protected`, and `private` properties will cause a compilation error
+
+```kotlin
+import com.github.fenrur.vaadin.codegen.ExposeSignal
+import com.github.fenrur.vaadin.codegen.GenDsl
+import com.github.fenrur.signal.BindableMutableSignal
+import com.github.fenrur.signal.BindableSignal
+import com.github.fenrur.signal.bindableMutableSignalOf
+import com.github.fenrur.signal.bindableSignalOf
+
+@GenDsl
+class SignalCard : Div() {
+
+    @ExposeSignal
+    val title: BindableMutableSignal<String> = bindableMutableSignalOf("")
+
+    @ExposeSignal
+    val content: BindableMutableSignal<String> = bindableMutableSignalOf("")
+
+    @ExposeSignal
+    val visible: BindableSignal<Boolean> = bindableSignalOf(true)
+}
+```
+
+**Generated extensions:**
+```kotlin
+fun SignalCard.title(signal: MutableSignal<String>) {
+    this.title.bindTo(signal)
+}
+
+fun SignalCard.content(signal: MutableSignal<String>) {
+    this.content.bindTo(signal)
+}
+
+fun SignalCard.visible(signal: Signal<Boolean>) {
+    this.visible.bindTo(signal)
+}
+```
+
+**Usage:**
+```kotlin
+val titleSignal = mutableSignalOf("Hello")
+val contentSignal = mutableSignalOf("World")
+
+signalCard {
+    title(titleSignal)
+    content(contentSignal)
+}
+
+// Later, update the signals to reactively update the component
+titleSignal.value = "Updated Title"
+```
+
 ### Generated Code
 
 **With `@GenDslInject` (factory generated) — Quarkus mode:**
