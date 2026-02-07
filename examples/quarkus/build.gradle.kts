@@ -3,6 +3,7 @@ import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 plugins {
     kotlin("jvm")
     kotlin("plugin.allopen")
+    id("com.google.devtools.ksp")
     id("io.quarkus")
     id("com.vaadin")
     id("com.github.fenrur.vaadin-codegen")

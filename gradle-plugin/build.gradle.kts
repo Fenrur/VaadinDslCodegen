@@ -21,7 +21,7 @@ java {
 
 dependencies {
     implementation(gradleApi())
-    implementation("com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.0-1.0.29")
+    compileOnly("com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.0-1.0.29")
 }
 
 gradlePlugin {

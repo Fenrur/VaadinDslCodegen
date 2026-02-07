@@ -16,12 +16,10 @@ pluginManagement {
         gradlePluginPortal()
         maven { url = uri("https://jitpack.io") }
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "com.github.fenrur.vaadin-codegen") {
-                useModule("com.github.fenrur.vaadin-codegen:gradle-plugin:${requested.version}")
-            }
-        }
+    plugins {
+        // Define KSP version here for compatibility with your Kotlin version
+        id("com.google.devtools.ksp") version "2.1.0-1.0.29"
+        id("com.github.fenrur.vaadin-codegen") version "1.0.0"
     }
 }
 
@@ -37,7 +35,8 @@ import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 
 plugins {
     kotlin("jvm") version "2.1.0"
-    id("com.github.fenrur.vaadin-codegen") version "1.0.0" // Applies KSP automatically
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29" // KSP version must match your Kotlin version
+    id("com.github.fenrur.vaadin-codegen") version "1.0.0"
 }
 
 dependencies {
@@ -60,12 +59,10 @@ pluginManagement {
         gradlePluginPortal()
         maven { url 'https://jitpack.io' }
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == 'com.github.fenrur.vaadin-codegen') {
-                useModule("com.github.fenrur.vaadin-codegen:gradle-plugin:${requested.version}")
-            }
-        }
+    plugins {
+        // Define KSP version here for compatibility with your Kotlin version
+        id 'com.google.devtools.ksp' version '2.1.0-1.0.29'
+        id 'com.github.fenrur.vaadin-codegen' version '1.0.0'
     }
 }
 
@@ -81,7 +78,8 @@ import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.1.0'
-    id 'com.github.fenrur.vaadin-codegen' version '1.0.0' // Applies KSP automatically
+    id 'com.google.devtools.ksp' version '2.1.0-1.0.29' // KSP version must match your Kotlin version
+    id 'com.github.fenrur.vaadin-codegen' version '1.0.0'
 }
 
 dependencies {

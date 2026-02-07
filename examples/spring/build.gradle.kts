@@ -3,6 +3,7 @@ import com.github.fenrur.vaadin.codegen.VaadinDslCodegenExtension.Mode
 plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
+    id("com.google.devtools.ksp")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
     id("com.vaadin")
