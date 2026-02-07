@@ -253,6 +253,12 @@ When no `@GenDslInject` parameters exist, the component is instantiated directly
 
 Marks a property for signal binding extension generation. When applied to a property of type `BindableMutableSignal<T>` or `BindableSignal<T>`, the processor generates an extension function that allows binding a signal to this property.
 
+This annotation can be used with the following optional libraries:
+- [karibu-dsl](https://github.com/mvysny/karibu-dsl) — Kotlin DSL for building Vaadin UI
+- [vaadin-signal](https://github.com/Fenrur/vaadin-signal) — Reactive signal bindings for Vaadin
+
+The examples below demonstrate usage with both libraries.
+
 **Supported types:**
 
 | Property Type              | Generated Extension Parameter |
@@ -265,54 +271,77 @@ Marks a property for signal binding extension generation. When applied to a prop
 - `internal`, `protected`, and `private` properties will cause a compilation error
 
 ```kotlin
-import com.github.fenrur.vaadin.codegen.ExposeSignal
-import com.github.fenrur.vaadin.codegen.GenDsl
 import com.github.fenrur.signal.BindableMutableSignal
 import com.github.fenrur.signal.BindableSignal
 import com.github.fenrur.signal.bindableMutableSignalOf
 import com.github.fenrur.signal.bindableSignalOf
+import com.github.fenrur.vaadin.codegen.ExposeSignal
+import com.github.fenrur.vaadin.codegen.GenDsl
+import com.github.fenrur.vaadin.signal.textContent
+import com.github.fenrur.vaadin.signal.visible
+import com.github.mvysny.karibudsl.v10.h3
+import com.github.mvysny.karibudsl.v10.p
+import com.vaadin.flow.component.html.Div
 
 @GenDsl
-class SignalCard : Div() {
+class ReactiveCard : Div() {
 
     @ExposeSignal
     val title: BindableMutableSignal<String> = bindableMutableSignalOf("")
 
     @ExposeSignal
-    val content: BindableMutableSignal<String> = bindableMutableSignalOf("")
+    val description: BindableMutableSignal<String> = bindableMutableSignalOf("")
 
     @ExposeSignal
-    val visible: BindableSignal<Boolean> = bindableSignalOf(true)
+    val cardVisible: BindableSignal<Boolean> = bindableSignalOf(true)
+
+    init {
+        addClassName("reactive-card")
+        visible(cardVisible)
+
+        h3 {
+            textContent(title)
+        }
+        p {
+            textContent(description)
+        }
+    }
 }
 ```
 
 **Generated extensions:**
 ```kotlin
-fun SignalCard.title(signal: MutableSignal<String>) {
+fun ReactiveCard.title(signal: MutableSignal<String>) {
     this.title.bindTo(signal)
 }
 
-fun SignalCard.content(signal: MutableSignal<String>) {
-    this.content.bindTo(signal)
+fun ReactiveCard.description(signal: MutableSignal<String>) {
+    this.description.bindTo(signal)
 }
 
-fun SignalCard.visible(signal: Signal<Boolean>) {
-    this.visible.bindTo(signal)
+fun ReactiveCard.cardVisible(signal: Signal<Boolean>) {
+    this.cardVisible.bindTo(signal)
 }
 ```
 
 **Usage:**
 ```kotlin
-val titleSignal = mutableSignalOf("Hello")
-val contentSignal = mutableSignalOf("World")
+// Create signals for reactive state
+val titleSignal = mutableSignalOf("Welcome")
+val descriptionSignal = mutableSignalOf("This card updates reactively")
+val isVisible = mutableSignalOf(true)
 
-signalCard {
+// Use the generated DSL and bind signals
+reactiveCard {
     title(titleSignal)
-    content(contentSignal)
+    description(descriptionSignal)
+    cardVisible(isVisible)
 }
 
-// Later, update the signals to reactively update the component
+// Later, update the signals — the UI updates automatically
 titleSignal.value = "Updated Title"
+descriptionSignal.value = "New description content"
+isVisible.value = false  // Hides the card
 ```
 
 ### Generated Code
