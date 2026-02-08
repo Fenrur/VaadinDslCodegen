@@ -172,7 +172,6 @@ import jakarta.enterprise.context.ApplicationScoped
 @ApplicationScoped
 @Push(PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @PWA(name = "My Application", shortName = "MyApp")
-@Theme("lumo")
 class VaadinAppShellConfigurator : AppShellConfigurator
 ```
 
@@ -195,7 +194,6 @@ import org.springframework.context.annotation.ComponentScan
 @ComponentScan(basePackages = ["com.example.spring", "com.github.fenrur.vaadin.codegen"])
 @Push(PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @PWA(name = "My Application", shortName = "MyApp")
-@Theme("lumo")
 class Application : AppShellConfigurator
 
 fun main(args: Array<String>) {
