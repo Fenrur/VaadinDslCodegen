@@ -152,6 +152,56 @@ afterEvaluate {
 }
 ```
 
+## Quarkus Dev Mode + KSP Hot Reload
+
+Quarkus dev mode uses its own internal compiler for hot-reload, which does **not** run KSP when source files change. This means if you modify `@GenDsl` classes, the generated DSL files won't be updated automatically.
+
+### Solution: Run KSP in Continuous Mode
+
+Run KSP in watch mode in one terminal, and Quarkus dev in another:
+
+**Terminal 1 - KSP Watch:**
+```bash
+cd examples/quarkus
+./gradlew kspKotlin --continuous
+```
+
+**Terminal 2 - Quarkus Dev:**
+```bash
+cd examples/quarkus
+./gradlew quarkusDev
+```
+
+Now when you modify `@GenDsl` annotated classes:
+1. The `--continuous` flag detects file changes and re-runs `kspKotlin`
+2. KSP regenerates the DSL files in `build/generated/ksp/main/kotlin/`
+3. Quarkus dev mode detects the new generated files and recompiles
+4. Refresh your browser to see the changes
+
+### Recommended build.gradle.kts Configuration
+
+Add this to your `build.gradle.kts` for optimal KSP + Quarkus dev mode support:
+
+```kotlin
+// Register KSP generated sources
+sourceSets {
+    main {
+        kotlin.srcDirs("build/generated/ksp/main/kotlin")
+        java.srcDirs("build/generated/ksp/main/java")
+    }
+}
+
+// Ensure compileKotlin always runs after kspKotlin
+tasks.named("compileKotlin") {
+    dependsOn("kspKotlin")
+}
+
+// Configure quarkusDev to run KSP before starting
+tasks.named("quarkusDev") {
+    dependsOn("kspKotlin")
+}
+```
+
 ## Push Configuration (WebSocket)
 
 For reactive features and server-side push updates, configure your `AppShellConfigurator` with WebSocket transport.

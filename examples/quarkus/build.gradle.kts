@@ -77,3 +77,67 @@ afterEvaluate {
         })
     }
 }
+
+// Register KSP generated sources for Quarkus dev mode
+sourceSets {
+    main {
+        kotlin.srcDirs("build/generated/ksp/main/kotlin")
+        java.srcDirs("build/generated/ksp/main/java")
+    }
+}
+
+// Ensure compileKotlin always runs after kspKotlin
+tasks.named("compileKotlin") {
+    dependsOn("kspKotlin")
+}
+
+// Configure quarkusDev to run KSP before starting
+tasks.named("quarkusDev") {
+    dependsOn("kspKotlin")
+}
+
+// ===============================================================
+// KSP Hot Reload Support for Quarkus Dev Mode
+// ===============================================================
+//
+// Quarkus dev mode uses its own internal compiler and does NOT
+// run KSP when source files change. To enable KSP hot reload:
+//
+// Option 1: Run kspKotlin in continuous mode in a separate terminal:
+//   ./gradlew kspKotlin --continuous
+//
+// Option 2: Use the custom kspWatch task (runs in background):
+//   ./gradlew kspWatch
+//
+// Then in another terminal, run quarkusDev normally:
+//   ./gradlew quarkusDev
+// ===============================================================
+
+// Task to run KSP in continuous/watch mode
+tasks.register("kspWatch") {
+    group = "development"
+    description = "Run KSP in continuous mode for hot reload (run in separate terminal)"
+
+    doLast {
+        println("""
+            |
+            |========================================
+            | KSP Watch Mode Instructions
+            |========================================
+            |
+            | To enable KSP hot reload with Quarkus:
+            |
+            | 1. In THIS terminal, run:
+            |    ./gradlew kspKotlin --continuous
+            |
+            | 2. In ANOTHER terminal, run:
+            |    ./gradlew quarkusDev
+            |
+            | Now when you modify @GenDsl classes,
+            | KSP will regenerate the DSL files and
+            | Quarkus will pick up the changes.
+            |
+            |========================================
+        """.trimMargin())
+    }
+}
